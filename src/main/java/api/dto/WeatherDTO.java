@@ -24,6 +24,7 @@ public class WeatherDTO {
         this.currentWeatherReport = value;
     }
 
+    //Use the List instead of the ArrayList.
     public ArrayList<ForecastReport> getForecastReport() {
 
         return forecastReport;

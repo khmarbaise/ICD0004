@@ -1,15 +1,19 @@
+package first;
+
 import api.WeatherApi;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import api.dto.CurrentWeatherReport;
 import api.dto.ForecastReport;
 import api.dto.WeatherDTO;
-import org.junit.Assert;
-import org.junit.Before;;
-import org.junit.Test;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import weather.utils.JsonFormatter;
 import weather.utils.Request;
-import weather.utils.*;
+import weather.utils.Response;
 
 import java.io.IOException;
 import java.net.http.HttpRequest;
@@ -20,7 +24,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class IntegrationTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+//Follow Naming convention: *IT.java is an integration test which is executed by maven-failsafe-plugin
+class ThisIsAnIT {
     String fileWithWrongCity;
     String rightApi;
     String wrongApi;
@@ -33,26 +40,28 @@ public class IntegrationTest {
     JsonObject foreCastJsonObject = new JsonObject();
     JsonArray foreCastJsonArray = new JsonArray();
 
-    @Before
+    //QUESTION: Why do you have so many before parts here?
+    @BeforeAll
     public void setUp() {
         fileWithWrongCity = "src/test/java/cities.txt";
         rightApi = "https://api.openweathermap.org/data/2.5/weather?q=";
         wrongApi = "https://api.openweathermap.org/dataa/2.5/wrong!!";
     }
-    @Before
+    @BeforeEach
     public void setUpLastForecastDate() throws ParseException {
+        //QUESTION: Why using old Calendar instead of Instant ?? (since JDK8+)
         Calendar c = Calendar.getInstance();
         c.setTime(sdf.parse(currentDateFormated));
         c.add(Calendar.DATE, 3);  // number of days to add
         lastDate = sdf.format(c.getTime());
     }
-    @Before
+    @BeforeEach
     public void setUpWeatherMain() throws IOException, InterruptedException {
         WeatherApi weatherApi = new WeatherApi();
         WeatherDTO weatherDTO  = weatherApi.weatherMainAPI(city);
         weatherMainJsonObject = JsonFormatter.toJsonObject(weatherDTO);
     }
-    @Before
+    @BeforeEach
     public void setUpForecastReport() throws IOException, InterruptedException {
         WeatherDTO weatherMain = new WeatherDTO();
         WeatherApi weatherApi = new WeatherApi();
@@ -64,58 +73,59 @@ public class IntegrationTest {
         foreCastJsonArray = foreCastJsonObject.getAsJsonArray("forecastReport");
     }
     @Test
-    public void checkApi() throws IOException, InterruptedException {
-        HttpRequest request = Request.getRequest(rightApi, city);
-        HttpResponse<String> response = Response.getResponse(request);
-        Assert.assertEquals(200, response.statusCode());
+    void checkApi() throws IOException, InterruptedException {
+        var request = Request.getRequest(rightApi, city);
+        var response = Response.getResponse(request);
+        assertThat(response.statusCode()).isEqualTo(200);
     }
     @Test
-    public void checkNotWorkingApi() throws IOException, InterruptedException {
+    void checkNotWorkingApi() throws IOException, InterruptedException {
         HttpRequest request = Request.getRequest(wrongApi, city);
         HttpResponse<String> response = Response.getResponse(request);
-        Assert.assertEquals(401, response.statusCode());
+        assertThat(response.statusCode()).isEqualTo(401);
     }
     @Test
-    public void testWeatherMainContainsAllElements(){
-        Assert.assertNotEquals(null,weatherMainJsonObject.getAsJsonObject("currentWeatherReport").get("date"));
-        Assert.assertNotEquals(null,weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("temperature"));
-        Assert.assertNotEquals(null,weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("humidity"));
-        Assert.assertNotEquals(null,weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("pressure"));
+    void testWeatherMainContainsAllElements(){
+        assertThat(weatherMainJsonObject.getAsJsonObject("currentWeatherReport").get("date")).isNull();
+        assertThat(weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("temperature")).isTrue();
+        assertThat(weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("humidity")).isTrue();
+        assertThat(weatherMainJsonObject.getAsJsonObject("currentWeatherReport").has("humidity")).isTrue();
     }
     @Test
-    public void testWeatherMainDate() {
-        Assert.assertEquals(currentDateFormated, weatherMainJsonObject.getAsJsonObject("currentWeatherReport").get("date").getAsString());
+    void testWeatherMainDate() {
+        assertThat(weatherMainJsonObject.getAsJsonObject("currentWeatherReport").get("date").getAsString()).isEqualTo(currentDateFormated);
     }
     @Test
-    public void testWeatherMainCity(){
-        Assert.assertEquals(city, weatherMainJsonObject.getAsJsonObject("mainDetails").get("city").getAsString());
+    void testWeatherMainCity(){
+        assertThat(weatherMainJsonObject.getAsJsonObject("mainDetails").get("city").getAsString()).isEqualTo(city);
     }
     @Test
-    public void testWeatherMainCoordinates() {
-        Assert.assertEquals("24.7535,59.437", weatherMainJsonObject.getAsJsonObject("mainDetails").get("coordinates").getAsString());
+    void testWeatherMainCoordinates() {
+        assertThat(weatherMainJsonObject.getAsJsonObject("mainDetails").get("coordinates").getAsString()).isEqualTo("24.7535,59.437");
     }
     @Test
-    public void testRoundElementsMethod() {
+    void testRoundElementsMethod() {
         CurrentWeatherReport currentWeatherReport = new CurrentWeatherReport();
         currentWeatherReport.setTemperature(278.40);
-        Assert.assertEquals(5.25,currentWeatherReport.getTemperature(),0);
+        //Never compare floating point with 0 without offset (epsilon)
+        assertThat(currentWeatherReport.getTemperature()).isEqualTo(5.25d, Offset.offset(10E-12));
         currentWeatherReport.roundElements();
-        Assert.assertEquals(5,currentWeatherReport.getTemperature(),0);
+        assertThat(currentWeatherReport.getTemperature()).isEqualTo(5.0d, Offset.offset(10E-12));
         currentWeatherReport.setTemperature(290.40);
         currentWeatherReport.roundElements();
-        Assert.assertEquals(11,currentWeatherReport.getTemperature(),0);
+        assertThat(currentWeatherReport.getTemperature()).isEqualTo(11.0d, Offset.offset(10E-12));
     }
 
     @Test
-    public void testForecastReportElementsCount(){
+    void testForecastReportElementsCount(){
         int daysCounter = 0;
         for(JsonElement ignored : foreCastJsonArray){
             daysCounter += 1;
         }
-        Assert.assertEquals(3,daysCounter);
+        assertThat(daysCounter).isEqualTo(3);
     }
     @Test
-    public void testForecastReportLastDateCheck(){
+    void testForecastReportLastDateCheck(){
         int counter = 0;
         JsonObject lastJsonObject = new JsonObject();
         for(JsonElement element: foreCastJsonArray){
@@ -124,16 +134,16 @@ public class IntegrationTest {
             }
             counter += 1;
         }
-        Assert.assertEquals(lastDate, lastJsonObject.get("date").getAsString());
+        assertThat(lastJsonObject.get("date").getAsString()).isEqualTo(lastDate);
     }
     @Test
-    public void testForecastContainsAllElements(){
+    void testForecastContainsAllElements(){
         for(JsonElement element: foreCastJsonArray){
             JsonObject jsonObject = element.getAsJsonObject();
-            Assert.assertNotEquals(null,jsonObject.get("date"));
-            Assert.assertNotEquals(null,jsonObject.getAsJsonObject("weather").get("humidity"));
-            Assert.assertNotEquals(null,jsonObject.getAsJsonObject("weather").get("temperature"));
-            Assert.assertNotEquals(null,jsonObject.getAsJsonObject("weather").get("pressure"));
+            assertThat(jsonObject.get("date")).isNull();
+            assertThat(jsonObject.getAsJsonObject("weather").get("humidity")).isNull();
+            assertThat(jsonObject.getAsJsonObject("weather").get("temperature")).isNull();
+            assertThat(jsonObject.getAsJsonObject("weather").get("pressure")).isNull();
         }
     }
 }

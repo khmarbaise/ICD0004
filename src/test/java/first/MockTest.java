@@ -1,3 +1,6 @@
+//Test should have a package as well as classed instead of the default package!!!
+package first;
+
 import api.WeatherApi;
 import api.dto.CurrentWeatherReport;
 import api.dto.ForecastReport;
@@ -18,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MockTest {
+class MockTest {
 
     @Mock
     static WeatherApi weatherApi;
@@ -32,6 +35,7 @@ public class MockTest {
 
     private static final String city = "Tallinn";
 
+    // QUESTION: Why to beforeAll method?
     @BeforeAll
     public static void weatherForecastMainTest() {
         weatherDTOObject = new WeatherDTO();
@@ -59,27 +63,27 @@ public class MockTest {
     }
 
     @Test
-    public void testGetTemperature() throws IOException, InterruptedException {
+    void testGetTemperature() throws IOException, InterruptedException {
         when(weatherApi.weatherMainAPI(anyString())).thenReturn(weatherDTO);
         WeatherDTO weatherGetTemperature = weatherApi.weatherMainAPI(city);
         assertThat(weatherDTO.getCurrentWeatherReport().getTemperature(), equalTo(weatherGetTemperature.getCurrentWeatherReport().getTemperature()));
     }
 
     @Test
-    public void testGetPressure() throws IOException, InterruptedException {
+    void testGetPressure() throws IOException, InterruptedException {
         when(weatherApi.weatherMainAPI(anyString())).thenReturn(weatherDTO);
         WeatherDTO weatherGetPressure = weatherApi.weatherMainAPI(city);
         assertThat(weatherDTO.getCurrentWeatherReport().getPressure(), equalTo(weatherGetPressure.getCurrentWeatherReport().getPressure()));
     }
 
     @Test
-    public void testGetHumidity() throws IOException, InterruptedException {
+    void testGetHumidity() throws IOException, InterruptedException {
         when(weatherApi.weatherMainAPI(anyString())).thenReturn(weatherDTO);
         WeatherDTO weatherGetHumidity = weatherApi.weatherMainAPI(city);
         assertThat(weatherDTO.getCurrentWeatherReport().getHumidity(), equalTo(weatherGetHumidity.getCurrentWeatherReport().getHumidity()));
     }
     @Test
-    public void testGetHumidityForecast() throws IOException, InterruptedException {
+    void testGetHumidityForecast() throws IOException, InterruptedException {
         ArrayList<ForecastReport> forecastReportsList = weatherDTOObject.getForecastReport();
         when(weatherApi.forecastAPI(anyString())).thenReturn(forecastReportsList);
         ArrayList<ForecastReport> forecastAPIGetHumidity = weatherApi.forecastAPI(city);
@@ -91,7 +95,7 @@ public class MockTest {
     }
 
     @Test
-    public void testGetPressureForecast() throws IOException, InterruptedException {
+    void testGetPressureForecast() throws IOException, InterruptedException {
         ArrayList<ForecastReport> forecastReportsList = weatherDTOObject.getForecastReport();
         when(weatherApi.forecastAPI(anyString())).thenReturn(forecastReportsList);
         ArrayList<ForecastReport> forecastAPIGetPressure = weatherApi.forecastAPI(city);
@@ -103,7 +107,7 @@ public class MockTest {
     }
 
     @Test
-    public void testGetTemperatureForecast() throws IOException, InterruptedException {
+    void testGetTemperatureForecast() throws IOException, InterruptedException {
         ArrayList<ForecastReport> forecastReportsList = weatherDTOObject.getForecastReport();
         when(weatherApi.forecastAPI(anyString())).thenReturn(forecastReportsList);
         ArrayList<ForecastReport> forecastAPIGetTemperature = weatherApi.forecastAPI(city);

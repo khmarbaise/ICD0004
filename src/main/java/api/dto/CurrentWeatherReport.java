@@ -15,6 +15,7 @@ public class CurrentWeatherReport {
         return date;
     }
     public void setDate() {
+        //I strongly recommend to use Instant instead of Date.
         Date date = new Date();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");

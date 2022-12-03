@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+//Why do you write your own Logs append and not using the existing one!!!
 public class LogsAppender {
     static List<String> newList = new ArrayList<>();
     final static Logger logger = LoggerFactory.getLogger(WeatherApi.class);

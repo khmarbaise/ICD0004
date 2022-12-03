@@ -1,3 +1,5 @@
+package first;
+
 import exceptions.FileNotFoundException;
 import exceptions.InvalidFileFormatException;
 import logs.LogsAppender;
@@ -14,7 +16,7 @@ import weather.utils.DateFormatter;
 import java.io.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UnitTest {
+class UnitTest {
     String wrongFile;
     String wrongFileType;
     String fileWithWrongCity;
@@ -38,11 +40,14 @@ public class UnitTest {
         date = "1997-08-25";
     }
 
+    //If you want to stick with JUnit 4 you have to add the junit-jupiter-vintage engine
+    //Take a deep look into that YT: https://youtu.be/Xy6m9rNYBhc
+    //@Rule is JUnit 4
     @Rule
     public SystemOutRule systemOutRule1 = new SystemOutRule().enableLog();
 
     @Test
-    public void testWrongFileFormat(){
+    void testWrongFileFormat(){
         Exception exception = assertThrows(InvalidFileFormatException.class, () -> {
             WeatherHandler.openFile(wrongFileType);
         });
@@ -58,7 +63,7 @@ public class UnitTest {
     }
 
     @Test
-    public void testWrongCityName() throws IOException {
+    void testWrongCityName() throws IOException {
             String errorMessage = invalidCityName + " is invalid city name, file not created!\n";
             BufferedReader r = new BufferedReader(new StringReader(invalidCityName));
             WeatherHandler.readFile(r);
@@ -66,11 +71,11 @@ public class UnitTest {
             Assert.assertEquals(errorMessage,LogsAppender.returnLogList().get(LogsAppender.returnLogList().size() - 1));
     }
     @Test
-    public void testDateFormatter(){
+    void testDateFormatter(){
         Assert.assertEquals("25-08-1997", DateFormatter.formatDate(date));
     }
     @Test
-    public void testCurrentWeatherReportTemp() {
+    void testCurrentWeatherReportTemp() {
         CurrentWeatherReport currentWeatherReport = new CurrentWeatherReport();
         currentWeatherReport.setTemperature(277.15);
         Assert.assertEquals(4, currentWeatherReport.getTemperature(), 0);
@@ -78,7 +83,7 @@ public class UnitTest {
         Assert.assertEquals(5, currentWeatherReport.getTemperature(), 0);
     }
     @Test
-    public void testCurrentWeatherReportHumidity() {
+    void testCurrentWeatherReportHumidity() {
         CurrentWeatherReport currentWeatherReport = new CurrentWeatherReport();
         currentWeatherReport.setHumidity(60);
         Assert.assertEquals(60, currentWeatherReport.getHumidity(), 0);

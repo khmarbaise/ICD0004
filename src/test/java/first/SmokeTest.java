@@ -1,3 +1,5 @@
+package first;
+
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -5,22 +7,22 @@ import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
 
 
-public class SmokeTest {
+class SmokeTest {
 
-    public static final String API_URL = "https://api.openweathermap.org/data/2.5/weather?q=";
-    public static final String FORECAST_API = "https://api.openweathermap.org/data/2.5/forecast?q=";
+    static final String API_URL = "https://api.openweathermap.org/data/2.5/weather?q=";
+    static final String FORECAST_API = "https://api.openweathermap.org/data/2.5/forecast?q=";
 
-    public static final String API_WEATHER_LAT_LON = "https://api.openweathermap.org/data/2.5/weather?";
-    public static final String API_FORECAST_LAT_LON = "https://api.openweathermap.org/data/2.5/forecast?";
+    static final String API_WEATHER_LAT_LON = "https://api.openweathermap.org/data/2.5/weather?";
+    static final String API_FORECAST_LAT_LON = "https://api.openweathermap.org/data/2.5/forecast?";
 
-    public static final String CITY  = "Tallinn";
-    public static final String KEY_API = "&appid=ef619cd2265c8cb95d9f7934b5a29b36";
+    static final String CITY  = "Tallinn";
+    static final String KEY_API = "&appid=ef619cd2265c8cb95d9f7934b5a29b36";
 
-    public static final String LAT = "lat=59.436962";
-    public static final String LON = "lon=24.753574";
+    static final String LAT = "lat=59.436962";
+    static final String LON = "lon=24.753574";
 
     @Test
-    public void getWeatherWithLATLON () {
+    void getWeatherWithLATLON () {
         given()
                 .contentType(JSON.toString())
                 .when()
@@ -30,7 +32,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void getWeatherForecastWithLATLON () {
+    void getWeatherForecastWithLATLON () {
         given()
                 .contentType(JSON.toString())
                 .when()
@@ -40,7 +42,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void getWeatherApiWithoutKey() {
+    void getWeatherApiWithoutKey() {
         when()
                 .get(API_URL)
                 .then()
@@ -48,7 +50,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void getWeatherHttp() {
+    void getWeatherHttp() {
         given()
                 .contentType(JSON.toString())
                 .when()
@@ -58,7 +60,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void getWeatherForecastHttp() {
+    void getWeatherForecastHttp() {
         when()
                 .get(FORECAST_API)
                 .then()
@@ -66,7 +68,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void getWeatherForecastApi() {
+    void getWeatherForecastApi() {
         given()
                 .contentType(JSON.toString())
                 .when()
